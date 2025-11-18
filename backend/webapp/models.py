@@ -126,5 +126,23 @@ class Fuellog(models.Model):
         return f"Fuel log for {self.vehicle.vehicle_number} on {self.date}"
     
     
-    
+class ServiceType(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class MaintenanceLog(models.Model):
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    service_type = models.ForeignKey(ServiceType, on_delete=models.SET_NULL, null=True)
+    odometer_reading = models.IntegerField()
+    description = models.TextField(blank=True)
+    date = models.DateTimeField(auto_now_add=True)
+    total_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    created_by = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"{self.vehicle} - {self.service_type} on {self.date.date()}"    
         
