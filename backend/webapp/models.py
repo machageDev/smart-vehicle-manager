@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.utils import timezone
+from math import radians, sin, cos, sqrt, atan2
 # Create your models here.
 
 class Driver(models.Model):
@@ -37,6 +38,7 @@ class Carowner(models.Model):
     updated_at=models.DateTimeField(auto_now=True)  
     def __str__(self):
             return self.username
+        
 class Vehicle(models.Model):
     owner=models.ForeignKey(Carowner,on_delete=models.CASCADE)
     vehicle_number=models.CharField(max_length=20,unique=True)
@@ -48,3 +50,65 @@ class Vehicle(models.Model):
     updated_at=models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.vehicle_number      
+
+
+class Trip(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('ongoing', 'Ongoing'),
+        ('completed', 'Completed'),
+    )
+
+    user = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    start_lat = models.FloatField(null=True, blank=True)
+    start_lng = models.FloatField(null=True, blank=True)
+    end_lat = models.FloatField(null=True, blank=True)
+    end_lng = models.FloatField(null=True, blank=True)
+
+    distance_km = models.FloatField(default=0.0)
+
+    started_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f"Trip #{self.id} - {self.user.username}"
+
+    # --- DISTANCE CALCULATION (Haversine formula) ---
+    def calculate_distance(self):
+        if self.start_lat and self.end_lat:
+            R = 6371  # Earth radius in KM
+
+            lat1 = radians(self.start_lat)
+            lon1 = radians(self.start_lng)
+            lat2 = radians(self.end_lat)
+            lon2 = radians(self.end_lng)
+
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
+
+            a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+            return round(R * c, 2)
+        return 0.0
+
+    def end_trip(self, end_lat, end_lng):
+        self.end_lat = end_lat
+        self.end_lng = end_lng
+        self.ended_at = timezone.now()
+        self.distance_km = self.calculate_distance()
+        self.status = 'completed'
+        self.save()
+
+
+class TripLocation(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='locations')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Location for trip {self.trip.id}"
+    
