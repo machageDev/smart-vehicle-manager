@@ -145,4 +145,14 @@ class MaintenanceLog(models.Model):
 
     def __str__(self):
         return f"{self.vehicle} - {self.service_type} on {self.date.date()}"    
+
+class PartReplacement(models.Model):
+    maintenance_log = models.ForeignKey(MaintenanceLog, on_delete=models.CASCADE, related_name='replaced_parts')
+    part_name = models.CharField(max_length=150)
+    brand = models.CharField(max_length=100, blank=True)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    next_replacement_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.part_name} ({self.brand})"
         
