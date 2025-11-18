@@ -111,4 +111,20 @@ class TripLocation(models.Model):
 
     def __str__(self):
         return f"Location for trip {self.trip.id}"
+
+
+class Fuellog(models.Model):
+    vehicle=models.ForeignKey(Vehicle,on_delete=models.CASCADE)
+    date=models.DateField()
+    fuel_type=models.CharField(max_length=50)
+    quantity_liters=models.FloatField()
+    price_per_liter=models.FloatField()
+    total_cost=models.FloatField()
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return f"Fuel log for {self.vehicle.vehicle_number} on {self.date}"
     
+    
+    
+        
