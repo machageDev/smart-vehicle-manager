@@ -4,7 +4,7 @@ from math import radians, sin, cos, sqrt, atan2
 # Create your models here.
 
 class Driver(models.Model):
-    username=models.CharFiield(max_length=255,unique=True)
+    username=models.CharField(max_length=255,unique=True)
     email=models.EmailField(unique=True)
     phone_number=models.CharField(max_length=15,unique=True)
     licence_number=models.CharField(max_length=50,unique=True)
