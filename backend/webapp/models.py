@@ -155,4 +155,29 @@ class PartReplacement(models.Model):
 
     def __str__(self):
         return f"{self.part_name} ({self.brand})"
-        
+
+
+class Insurance(models.Model):
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    provider = models.CharField(max_length=150)
+    policy_number = models.CharField(max_length=100, unique=True)
+    start_date = models.DateField()
+    expiry_date = models.DateField()
+    document = models.FileField(upload_to="documents/insurance/", blank=True, null=True)
+    created_by = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"{self.vehicle} - {self.policy_number}"        
+
+
+class Inspection(models.Model):
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    certificate_number = models.CharField(max_length=120)
+    inspection_date = models.DateField()
+    expiry_date = models.DateField()
+    document = models.FileField(upload_to="documents/inspection/", blank=True, null=True)
+    created_by = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"{self.vehicle} Inspection"
+    
