@@ -180,4 +180,40 @@ class Inspection(models.Model):
 
     def __str__(self):
         return f"{self.vehicle} Inspection"
+ 
+class License(models.Model):
+    LICENSE_TYPES = (
+        ("DRIVER", "Driver License"),
+        ("VEHICLE", "Vehicle License"),
+        ("OTHER", "Other"),
+    )
+
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    license_type = models.CharField(max_length=20, choices=LICENSE_TYPES)
+    license_number = models.CharField(max_length=120)
+    issue_date = models.DateField()
+    expiry_date = models.DateField()
+    document = models.FileField(upload_to="documents/licenses/", blank=True, null=True)
+    created_by = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"{self.license_type} - {self.license_number}"
+
+
+class Reminder(models.Model):
+    REMINDER_TYPES = (
+        ("INSURANCE", "Insurance"),
+        ("INSPECTION", "Inspection"),
+        ("LICENSE", "License"),
+    )
+
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    reminder_type = models.CharField(max_length=20, choices=REMINDER_TYPES)
+    related_id = models.PositiveIntegerField()  # Store Insurance/Inspection/License ID
+    message = models.CharField(max_length=255)
+    reminder_date = models.DateTimeField()
+    sent = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.vehicle} - {self.reminder_type} Reminder"
     
