@@ -1,9 +1,10 @@
+from datetime import timedelta
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from math import radians, sin, cos, sqrt, atan2
 from django.contrib.auth.models import User
-
+from django.utils.crypto import get_random_string
 # Create your models here.
 
 class Driver(models.Model):
@@ -291,3 +292,37 @@ class Reminder(models.Model):
 
     def __str__(self):
         return f"{self.vehicle} - {self.reminder_type} Reminder"
+
+
+class BaseToken(models.Model):
+    key = models.CharField(max_length=40, primary_key=True)
+    created = models.DateTimeField(auto_now_add=True)
+    expires = models.DateTimeField()
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        if not self.expires:
+            self.expires = timezone.now() + timedelta(days=30)
+        return super().save(*args, **kwargs)
+
+    def generate_key(self):
+        return get_random_string(40)
+
+    def is_expired(self):
+        return timezone.now() > self.expires
+
+    def __str__(self):
+        return self.key
+
+class DriverToken(BaseToken):
+    driver = models.ForeignKey('Driver', on_delete=models.CASCADE, related_name='tokens')
+
+class CarOwnerToken(BaseToken):
+    car_owner = models.ForeignKey('CarOwner', on_delete=models.CASCADE, related_name='tokens')
+
+class MechanicToken(BaseToken):
+    mechanic = models.ForeignKey('Mechanic', on_delete=models.CASCADE, related_name='tokens')    
