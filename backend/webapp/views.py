@@ -2,7 +2,9 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
-from webapp.models import DriverToken, MechanicToken
+from webapp.authentication import CarOwnerTokenAuthentication, DriverTokenAuthentication, MechanicTokenAuthentication
+from webapp.models import CarOwnerToken, DriverToken, MechanicToken
+from webapp.permissions import IsAuthenticated
 from webapp.serializers import CarOwnerRegistrationSerializer, DriverLoginSerializer, DriverRegistrationSerializer, MechanicLoginSerializer, MechanicRegistrationSerializer
 
 # Create your views here.
@@ -116,15 +118,13 @@ def mechanic_login(request):
 @authentication_classes([DriverTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def driver_logout(request):
-    """
-    Logout driver (delete token)
-    """
+    
     try:
         # Get the token from the request
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         token_key = auth_header.split(' ')[1]
         
-        # Delete the token
+       
         DriverToken.objects.filter(key=token_key).delete()
         
         return Response({
@@ -139,9 +139,7 @@ def driver_logout(request):
 @authentication_classes([CarOwnerTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def car_owner_logout(request):
-    """
-    Logout car owner (delete token)
-    """
+    
     try:
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         token_key = auth_header.split(' ')[1]
@@ -160,9 +158,7 @@ def car_owner_logout(request):
 @authentication_classes([MechanicTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def mechanic_logout(request):
-    """
-    Logout mechanic (delete token)
-    """
+  
     try:
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         token_key = auth_header.split(' ')[1]
