@@ -141,7 +141,52 @@ class MechanicLoginSerializer(serializers.Serializer):
         
         data['mechanic'] = mechanic
         return data
-
+class DriverLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+        
+        try:
+            driver = Driver.objects.get(username=username)
+        except Driver.DoesNotExist:
+            raise serializers.ValidationError({
+                'email': 'No driver found with this email address'
+            })
+        
+        if not driver.check_password(password):
+            raise serializers.ValidationError({
+                'password': 'Invalid password'
+            })
+        
+        data['driver'] = driver
+        return data
+    
+class CarOwnerLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+        
+        try:
+            car_owner = CarOwner.objects.get(email=username)
+        except CarOwner.DoesNotExist:
+            raise serializers.ValidationError({
+                'email': 'No car owner found with this email address'
+            })
+        
+        if not car_owner.check_password(password):
+            raise serializers.ValidationError({
+                'password': 'Invalid password'
+            })
+        
+        data['car_owner'] = car_owner
+        return data  
+      
 class CarOwnerSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     vehicles_count = serializers.SerializerMethodField()
