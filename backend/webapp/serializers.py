@@ -118,6 +118,30 @@ class MechanicSerializer(serializers.ModelSerializer):
                  'location', 'is_available', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
 
+
+class MechanicLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
+        
+        try:
+            mechanic = Mechanic.objects.get(email=email)
+        except Mechanic.DoesNotExist:
+            raise serializers.ValidationError({
+                'email': 'No mechanic found with this email address'
+            })
+        
+        if not mechanic.check_password(password):
+            raise serializers.ValidationError({
+                'password': 'Invalid password'
+            })
+        
+        data['mechanic'] = mechanic
+        return data
+
 class CarOwnerSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     vehicles_count = serializers.SerializerMethodField()

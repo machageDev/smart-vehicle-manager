@@ -62,4 +62,25 @@ def mechanic_registration(request):
                 }, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
 
-
+@api_view(['POST'])
+def driver_login(request):
+   
+    if request.method == 'POST':
+        serializer = DriverLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            driver = serializer.validated_data['driver']
+            
+            # Create or get token
+            token, created = DriverToken.objects.get_or_create(driver=driver)
+            
+            return Response({
+                'message': 'Login successful',
+                'token': token.key,
+                'driver': {
+                    'id': driver.id,
+                    'username': driver.username,
+                    'email': driver.email,
+                    'phone_number': driver.phone_number
+                }
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
