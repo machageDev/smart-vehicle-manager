@@ -103,7 +103,78 @@ def mechanic_login(request):
             'message':'login successful',
             'token':token.key,
             'mechanic':{
-                ''
-            }
-        })
+                 'id': mechanic.id,
+                    'username': mechanic.username,
+                    'email': mechanic.email,
+                    'phone_number': mechanic.phone_number,
+                    'speciality': mechanic.speciality
+                }
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+@api_view(['POST'])
+@authentication_classes([DriverTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def driver_logout(request):
+    """
+    Logout driver (delete token)
+    """
+    try:
+        # Get the token from the request
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token_key = auth_header.split(' ')[1]
         
+        # Delete the token
+        DriverToken.objects.filter(key=token_key).delete()
+        
+        return Response({
+            'message': 'Logout successful'
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'error': 'Logout failed'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@authentication_classes([CarOwnerTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def car_owner_logout(request):
+    """
+    Logout car owner (delete token)
+    """
+    try:
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token_key = auth_header.split(' ')[1]
+        
+        CarOwnerToken.objects.filter(key=token_key).delete()
+        
+        return Response({
+            'message': 'Logout successful'
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'error': 'Logout failed'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@authentication_classes([MechanicTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def mechanic_logout(request):
+    """
+    Logout mechanic (delete token)
+    """
+    try:
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        token_key = auth_header.split(' ')[1]
+        
+        MechanicToken.objects.filter(key=token_key).delete()
+        
+        return Response({
+            'message': 'Logout successful'
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'error': 'Logout failed'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
