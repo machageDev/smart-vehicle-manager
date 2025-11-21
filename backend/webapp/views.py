@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from webapp.authentication import CarOwnerTokenAuthentication, DriverTokenAuthentication, MechanicTokenAuthentication
 from webapp.models import CarOwnerToken, DriverToken, MechanicToken
 from webapp.permissions import IsAuthenticated
-from webapp.serializers import CarOwnerRegistrationSerializer, ChangePasswordSerializer, DriverLoginSerializer, DriverRegistrationSerializer, MechanicLoginSerializer, MechanicRegistrationSerializer
+from webapp.serializers import CarOwnerLoginSerializer, CarOwnerRegistrationSerializer, ChangePasswordSerializer, DriverLoginSerializer, DriverRegistrationSerializer, MechanicLoginSerializer, MechanicRegistrationSerializer
 
 # Create your views here.
 
@@ -46,6 +46,31 @@ def car_owner_registration(request):
                 }, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                    
+ 
+ 
+ 
+@api_view(['POST'])
+def car_owner_login(request):
+    
+    if request.method == 'POST':
+        serializer = CarOwnerLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            car_owner = serializer.validated_data['car_owner']
+            
+            # Create or get token
+            token, created = CarOwnerToken.objects.get_or_create(car_owner=car_owner)
+            
+            return Response({
+                'message': 'Login successful',
+                'token': token.key,
+                'car_owner': {
+                    'id': car_owner.id,
+                    'username': car_owner.username,
+                    'email': car_owner.email,
+                    'phone_number': car_owner.phone_number
+                }
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                    
 @api_view(['POST'])
 def mechanic_registration(request):    
