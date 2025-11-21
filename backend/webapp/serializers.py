@@ -163,7 +163,25 @@ class DriverLoginSerializer(serializers.Serializer):
         
         data['driver'] = driver
         return data
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, min_length=6, write_only=True)
+    confirm_password = serializers.CharField(required=True, min_length=6, write_only=True)
     
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({
+                'confirm_password': 'New passwords do not match'
+            })
+        return data
+    
+    def validate_current_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Current password is incorrect')
+        return value
+        
 class CarOwnerLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from webapp.authentication import CarOwnerTokenAuthentication, DriverTokenAuthentication, MechanicTokenAuthentication
 from webapp.models import CarOwnerToken, DriverToken, MechanicToken
 from webapp.permissions import IsAuthenticated
-from webapp.serializers import CarOwnerRegistrationSerializer, DriverLoginSerializer, DriverRegistrationSerializer, MechanicLoginSerializer, MechanicRegistrationSerializer
+from webapp.serializers import CarOwnerRegistrationSerializer, ChangePasswordSerializer, DriverLoginSerializer, DriverRegistrationSerializer, MechanicLoginSerializer, MechanicRegistrationSerializer
 
 # Create your views here.
 
@@ -66,8 +66,6 @@ def mechanic_registration(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
 
 @api_view(['POST'])
-#@authentication_classes([CustomTokenAuthentication])
-#@permission_classes([IsAuthenticated])
 def driver_login(request):
    
     if request.method == 'POST':
@@ -92,7 +90,6 @@ def driver_login(request):
 
 
 @api_view(['POST'])
-
 def mechanic_login(request):
     if request.method =='POST':
         serializer = MechanicLoginSerializer(data=request.data)
@@ -173,4 +170,44 @@ def mechanic_logout(request):
             'error': 'Logout failed'
         }, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@authentication_classes([DriverTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def driver_change_password(request):
+   
+    serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.save()
+        return Response({
+            'message': 'Password changed successfully'
+        }, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@authentication_classes([CarOwnerTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def car_owner_change_password(request):
+    
+    serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.save()
+        return Response({
+            'message': 'Password changed successfully'
+        }, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@authentication_classes([MechanicTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def mechanic_change_password(request):
+    
+    serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.save()
+        return Response({
+            'message': 'Password changed successfully'
+        }, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
