@@ -204,7 +204,25 @@ class CarOwnerLoginSerializer(serializers.Serializer):
         
         data['car_owner'] = car_owner
         return data  
-      
+class DriverProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Driver
+        fields = ['id', 'username', 'email', 'phone_number', 'licence_number', 
+                 'vehicle', 'is_available', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+class CarOwnerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarOwner
+        fields = ['id', 'username', 'email', 'phone_number', 'address', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+class MechanicProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mechanic
+        fields = ['id', 'username', 'email', 'phone_number', 'speciality', 
+                 'location', 'is_available', 'created_at']
+        read_only_fields = ['id', 'created_at']      
 class CarOwnerSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     vehicles_count = serializers.SerializerMethodField()

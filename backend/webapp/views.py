@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from webapp.authentication import CarOwnerTokenAuthentication, DriverTokenAuthentication, MechanicTokenAuthentication
 from webapp.models import CarOwnerToken, DriverToken, MechanicToken
 from webapp.permissions import IsAuthenticated
-from webapp.serializers import CarOwnerLoginSerializer, CarOwnerRegistrationSerializer, ChangePasswordSerializer, DriverLoginSerializer, DriverRegistrationSerializer, MechanicLoginSerializer, MechanicRegistrationSerializer
+from webapp.serializers import CarOwnerLoginSerializer, CarOwnerProfileSerializer, CarOwnerRegistrationSerializer, ChangePasswordSerializer, DriverLoginSerializer, DriverProfileSerializer, DriverRegistrationSerializer, MechanicLoginSerializer, MechanicProfileSerializer, MechanicRegistrationSerializer
 
 # Create your views here.
 
